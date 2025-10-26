@@ -330,9 +330,9 @@ export default function NCSWallet({ user, onTokenUpdate }: NCSWalletProps) {
           </div>
           <div style={{
             ...styles.levelBadge,
-            background: getLevelColor(user.level)
+            background: getLevelColor(String(user.level || 'Bronze'))
           }}>
-            {user.level}
+            {String(user.level || 'Bronze')}
           </div>
         </div>
 
@@ -407,7 +407,7 @@ export default function NCSWallet({ user, onTokenUpdate }: NCSWalletProps) {
               Level Benefits
             </h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {getLevelBenefits(user.level).map((benefit, index) => (
+              {getLevelBenefits(String(user.level || 'Bronze')).map((benefit, index) => (
                 <span
                   key={index}
                   style={{

@@ -57,7 +57,7 @@ export default function UserLevelManager({ user, onLevelUpgrade }: UserLevelMana
   };
 
   const getCurrentLevelIndex = () => {
-    return levelInfo.findIndex(level => level.name === user.level);
+    return levelInfo.findIndex(level => level.name === String(user.level || 'Bronze'));
   };
 
   const getNextLevel = () => {
@@ -247,7 +247,7 @@ export default function UserLevelManager({ user, onLevelUpgrade }: UserLevelMana
 
   const progress = getProgressToNextLevel();
   const nextLevel = getNextLevel();
-  const currentLevelData = levelInfo.find(level => level.name === user.level);
+  const currentLevelData = levelInfo.find(level => level.name === String(user.level || 'Bronze'));
 
   return (
     <div style={styles.container}>
@@ -257,7 +257,7 @@ export default function UserLevelManager({ user, onLevelUpgrade }: UserLevelMana
             {currentLevelData?.icon || '🔬'}
           </div>
           <div style={styles.levelInfo}>
-            <div style={styles.levelName}>{user.level}</div>
+            <div style={styles.levelName}>{String(user.level || 'Bronze')}</div>
             <div style={styles.levelDescription}>
               {currentLevelData?.description || 'Current level'}
             </div>
@@ -288,7 +288,7 @@ export default function UserLevelManager({ user, onLevelUpgrade }: UserLevelMana
 
       <div style={styles.levelsGrid}>
         {levelInfo.map((level, index) => {
-          const isCurrentLevel = level.name === user.level;
+          const isCurrentLevel = level.name === String(user.level || 'Bronze');
           const isUnlocked = user.total_earned_tokens >= level.requirements.min_tokens &&
                            user.referral_count >= level.requirements.min_referrals;
           const isNextLevel = nextLevel?.name === level.name;

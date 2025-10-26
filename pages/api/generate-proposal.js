@@ -1,26 +1,37 @@
-import dynamic from 'next/dynamic';
-import Head from 'next/head';
+import { NextApiRequest, NextApiResponse } from 'next';
 
-// Sử dụng dynamic import với tùy chọn ssr: false
-// Điều này ra lệnh cho Next.js KHÔNG render component này ở phía server.
-// Component sẽ chỉ được tải và render ở trình duyệt của người dùng (client-side).
-const ProposalGenerator = dynamic(
-  () => import('../features/proposal/components/ProposalGenerator'),
-  { 
-    ssr: false,
-    // Hiển thị một thông báo "Đang tải..." trong khi component đang được tải về
-    loading: () => <p style={{ textAlign: 'center', paddingTop: '2rem' }}>Đang tải trình tạo đề cương...</p> 
+export default function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
   }
-);
 
-export default function ProposalGeneratorPage() {
-  return (
-    <>
-      <Head>
-        <title>Trình tạo Đề cương Nghiên cứu</title>
-        <meta name="description" content="Công cụ hỗ trợ xây dựng đề cương nghiên cứu khoa học." />
-      </Head>
-      <ProposalGenerator />
-    </>
-  );
+  try {
+    const { formData } = req.body;
+    
+    // Generate proposal content
+    const proposalContent = {
+      title: formData.title || 'Research Proposal',
+      abstract: formData.abstract || '',
+      introduction: formData.introduction || '',
+      methodology: formData.methodology || '',
+      expectedResults: formData.expectedResults || '',
+      timeline: formData.timeline || '',
+      budget: formData.budget || '',
+      references: formData.references || ''
+    };
+
+    // Return success response
+    res.status(200).json({
+      success: true,
+      message: 'Proposal generated successfully',
+      data: proposalContent
+    });
+  } catch (error) {
+    console.error('Error generating proposal:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error generating proposal',
+      error: error.message
+    });
+  }
 }
