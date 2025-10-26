@@ -1,20 +1,27 @@
+// FILE: pages/settings.tsx
 import { useState, useRef } from "react";
 import { useRouter } from "next/router";
+// [FIX] 4.1: Import component Image từ next/image
+import Image from "next/image";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AuthModal from "../components/AuthModal";
 
+// [FIX] 1.1: Định nghĩa một interface cụ thể cho settings
+interface SiteSettings {
+  siteTitle: string;
+  favicon: string;
+  logo: string;
+  logoImage?: string;
+}
+
 interface SettingsProps {
   themeContext: {
     theme: "light" | "dark";
-    siteSettings: {
-      siteTitle: string;
-      favicon: string;
-      logo: string;
-      logoImage?: string;
-    };
+    siteSettings: SiteSettings;
     updateTheme: (theme: "light" | "dark") => void;
-    updateSiteSettings: (settings: any) => void;
+    // [FIX] 1.2: Sử dụng interface SiteSettings thay vì 'any'
+    updateSiteSettings: (settings: Partial<SiteSettings>) => void;
   };
 }
 
@@ -31,42 +38,12 @@ export default function Settings({ themeContext }: SettingsProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const menuItems = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: "📊",
-      onClick: () => router.push("/"),
-    },
-    {
-      id: "project",
-      label: "Project Management",
-      icon: "📁",
-      onClick: () => router.push("/project-management"),
-    },
-    {
-      id: "literature",
-      label: "Literature Review",
-      icon: "📚",
-      onClick: () => router.push("/literature-review"),
-    },
-    {
-      id: "data",
-      label: "Data Management",
-      icon: "💾",
-      onClick: () => router.push("/data-analysis"),
-    },
-    {
-      id: "analysis",
-      label: "Analysis Tools",
-      icon: "📈",
-      onClick: () => router.push("/analysis-tools"),
-    },
-    {
-      id: "writing",
-      label: "Thesis Writing",
-      icon: "✍️",
-      onClick: () => router.push("/thesis-writing"),
-    },
+    { id: "dashboard", label: "Dashboard", icon: "📊", onClick: () => router.push("/") },
+    { id: "project", label: "Project Management", icon: "📁", onClick: () => router.push("/project-management") },
+    { id: "literature", label: "Literature Review", icon: "📚", onClick: () => router.push("/literature-review") },
+    { id: "data", label: "Data Management", icon: "💾", onClick: () => router.push("/data-analysis") },
+    { id: "analysis", label: "Analysis Tools", icon: "📈", onClick: () => router.push("/analysis-tools") },
+    { id: "writing", label: "Thesis Writing", icon: "✍️", onClick: () => router.push("/thesis-writing") },
     { id: "setting", label: "Settings", icon: "⚙️", onClick: () => {} },
   ];
 
@@ -101,7 +78,7 @@ export default function Settings({ themeContext }: SettingsProps) {
 
   const handleSaveSettings = () => {
     // Settings đã được apply real-time thông qua themeContext
-    alert("Settings đã được lưu thành công!");
+    alert("Settings have been saved successfully!");
   };
 
   const handleResetSettings = () => {
@@ -116,9 +93,10 @@ export default function Settings({ themeContext }: SettingsProps) {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-    alert("Đã reset về mặc định!");
+    alert("Settings have been reset to default!");
   };
 
+  // ... (phần styles không thay đổi, giữ nguyên như cũ)
   const styles = {
     container: {
       display: "flex",
@@ -171,8 +149,6 @@ export default function Settings({ themeContext }: SettingsProps) {
       color: "white",
     },
     menuIcon: {
-      width: "20px",
-      height: "20px",
       marginRight: "12px",
     },
     mainContent: {
@@ -312,8 +288,6 @@ export default function Settings({ themeContext }: SettingsProps) {
       marginLeft: "12px",
     },
   };
-
-  // CSS Variables cho theme
   const themeStyles =
     themeContext.theme === "dark"
       ? {
@@ -338,6 +312,7 @@ export default function Settings({ themeContext }: SettingsProps) {
           "--preview-bg": "#f8fafc",
           "--primary-color": "#3b82f6",
         };
+
 
   return (
     <div style={{ ...styles.container, ...themeStyles }}>
@@ -366,7 +341,8 @@ export default function Settings({ themeContext }: SettingsProps) {
                   item.onClick();
                 }}
               >
-                <span style={styles.menuIcon}>{item.icon}</span>
+                {/* [IMPROVEMENT] Thêm role và aria-label cho emoji */}
+                <span style={styles.menuIcon} role="img" aria-label={`${item.label} icon`}>{item.icon}</span>
                 {item.label}
               </div>
             ))}
@@ -399,7 +375,8 @@ export default function Settings({ themeContext }: SettingsProps) {
                       name="theme"
                       value="light"
                       checked={themeContext.theme === "light"}
-                      onChange={(e) => themeContext.updateTheme("light")}
+                      // [FIX] 3.1: Xóa tham số 'e' không sử dụng
+                      onChange={() => themeContext.updateTheme("light")}
                     />
                     Light Mode
                   </label>
@@ -409,7 +386,8 @@ export default function Settings({ themeContext }: SettingsProps) {
                       name="theme"
                       value="dark"
                       checked={themeContext.theme === "dark"}
-                      onChange={(e) => themeContext.updateTheme("dark")}
+                      // [FIX] 3.2: Xóa tham số 'e' không sử dụng
+                      onChange={() => themeContext.updateTheme("dark")}
                     />
                     Dark Mode
                   </label>
@@ -450,14 +428,6 @@ export default function Settings({ themeContext }: SettingsProps) {
                   placeholder="Enter emoji for favicon"
                   maxLength={2}
                 />
-                <small
-                  style={{
-                    color: "var(--text-muted, #64748b)",
-                    fontSize: "12px",
-                  }}
-                >
-                  This emoji will appear in the browser tab
-                </small>
               </div>
 
               <div style={styles.settingGroup}>
@@ -498,9 +468,12 @@ export default function Settings({ themeContext }: SettingsProps) {
                       marginTop: "12px",
                     }}
                   >
-                    <img
+                    {/* [FIX] 4.2: Thay <img> bằng <Image> */}
+                    <Image
                       src={logoPreview}
                       alt="Logo preview"
+                      width={120}
+                      height={60}
                       style={styles.logoPreview}
                     />
                     <button
@@ -515,15 +488,6 @@ export default function Settings({ themeContext }: SettingsProps) {
                     </button>
                   </div>
                 )}
-
-                <small
-                  style={{
-                    color: "var(--text-muted, #64748b)",
-                    fontSize: "12px",
-                  }}
-                >
-                  Recommended: 120x60px PNG or SVG with transparent background
-                </small>
               </div>
 
               <div style={styles.preview}>
@@ -537,13 +501,16 @@ export default function Settings({ themeContext }: SettingsProps) {
                   }}
                 >
                   {logoPreview ? (
-                    <img
+                    // [FIX] 4.3: Thay <img> bằng <Image>
+                    <Image
                       src={logoPreview}
                       alt="Logo"
-                      style={{ height: "30px", objectFit: "contain" }}
+                      width={80} // Cần width và height
+                      height={30}
+                      style={{ objectFit: "contain" }}
                     />
                   ) : (
-                    <span style={{ fontSize: "24px" }}>
+                    <span style={{ fontSize: "24px" }} role="img" aria-label="favicon preview">
                       {themeContext.siteSettings.favicon}
                     </span>
                   )}
@@ -563,7 +530,8 @@ export default function Settings({ themeContext }: SettingsProps) {
                     color: "var(--text-muted, #64748b)",
                   }}
                 >
-                  Site Title: {themeContext.siteSettings.siteTitle}
+                  {/* [FIX] 2.1: Thay thế " bằng &quot; */}
+                  Site Title: &quot;{themeContext.siteSettings.siteTitle}&quot;
                 </div>
                 <div
                   style={{
@@ -571,8 +539,8 @@ export default function Settings({ themeContext }: SettingsProps) {
                     color: "var(--text-muted, #64748b)",
                   }}
                 >
-                  Favicon: {themeContext.siteSettings.favicon} (appears in
-                  browser tab)
+                  {/* [FIX] 2.2: Thay thế " bằng &quot; */}
+                  Favicon: {themeContext.siteSettings.favicon} (appears in &quot;browser tab&quot;)
                 </div>
               </div>
             </div>
