@@ -1,0 +1,112 @@
+.container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  padding: 1.5rem;
+}
+
+.header {
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.progressBar {
+  width: 100%;
+  background-color: #e5e7eb;
+  border-radius: 0.75rem;
+  height: 1rem;
+}
+
+.progressFill {
+  background-color: #2563eb;
+  height: 1rem;
+  border-radius: 0.75rem;
+  width: 65%;
+}
+
+.card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .gridContainer {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.badgeCompleted {
+  display: inline-block;
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.badgeInProgress {
+  display: inline-block;
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.badgeModel {
+  display: inline-block;
+  background-color: #dbeafe;
+  color: #1e40af;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.taskItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.taskText {
+  margin-left: 0.75rem;
+  flex-grow: 1;
+}
+
+.taskCompleted {
+  text-decoration: line-through;
+  color: #6b7280;
+}
+
+.dueBadge {
+  font-size: 0.875rem;
+  font-weight: 500;
+  background-color: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.insightBox {
+  background-color: #dbeafe;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.insightText {
+  color: #1e40af;
+  font-style: italic;
+}
