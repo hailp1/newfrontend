@@ -1,5 +1,8 @@
+// FILE: components/Header.tsx
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
+// [FIX] 1: Import component Image từ next/image
+import Image from "next/image";
 
 interface HeaderProps {
   user?: { name: string; email: string } | null;
@@ -104,10 +107,7 @@ export default function Header({ user, onLoginClick, onLogout }: HeaderProps) {
       alignItems: "center",
       gap: "12px",
     },
-    logoImage: {
-      height: "32px",
-      objectFit: "contain" as const,
-    },
+    // Không cần style cho image nữa vì đã truyền width/height trực tiếp
     nav: {
       display: "flex",
       gap: "24px",
@@ -211,13 +211,17 @@ export default function Header({ user, onLoginClick, onLogout }: HeaderProps) {
         <div style={styles.headerContent}>
           <div style={styles.logo} onClick={() => router.push("/")}>
             {settings.logoImage ? (
-              <img
+              // [FIX] 2: Thay thế <img> bằng <Image> để tối ưu hóa
+              <Image
                 src={settings.logoImage}
                 alt="Logo"
-                style={styles.logoImage}
+                height={32}
+                width={100} // Cần cung cấp width, có thể điều chỉnh
+                style={{ objectFit: "contain" }}
               />
             ) : (
-              <span>🔬</span>
+              // [IMPROVEMENT] Thêm aria-label cho emoji để cải thiện accessibility
+              <span role="img" aria-label="microscope">🔬</span>
             )}
             {settings.logo}
           </div>
@@ -251,7 +255,7 @@ export default function Header({ user, onLoginClick, onLogout }: HeaderProps) {
             <h2 style={styles.modalTitle}>Welcome Back</h2>
 
             <button style={styles.googleButton} onClick={handleGoogleLogin}>
-              <span>🔗</span>
+              <span role="img" aria-label="link">🔗</span>
               Continue with Google
             </button>
 
@@ -284,7 +288,8 @@ export default function Header({ user, onLoginClick, onLogout }: HeaderProps) {
             </form>
 
             <div style={styles.switchAuth}>
-              Don't have an account?{" "}
+              {/* [FIX] 3: Thay thế ' bằng &apos; để sửa lỗi unescaped entities */}
+              Don&apos;t have an account?{" "}
               <span style={styles.switchLink}>Sign Up</span>
             </div>
           </div>

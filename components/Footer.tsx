@@ -1,7 +1,11 @@
-import { useRouter } from "next/router";
+// FILE: components/Footer.tsx
+
+// [FIX] Xóa bỏ 'useRouter' vì không được sử dụng.
+// import { useRouter } from "next/router";
 
 export default function Footer() {
-  const router = useRouter();
+  // [FIX] Xóa bỏ dòng này
+  // const router = useRouter();
 
   const styles = {
     footer: {

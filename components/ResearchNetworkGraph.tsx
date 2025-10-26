@@ -2,7 +2,9 @@
 import React, { useEffect, useRef } from "react";
 import { DataSet } from "vis-data";
 import { Network } from "vis-network";
+import type { Options } from "vis-network";
 
+// Định nghĩa kiểu dữ liệu cho các biến nghiên cứu
 interface ResearchVariable {
   construct: string;
   question?: string;
@@ -21,6 +23,28 @@ interface ResearchNetworkGraphProps {
   researchModel: ResearchModel;
 }
 
+// ---- [THAY ĐỔI CHÍNH] ----
+// Định nghĩa kiểu dữ liệu cho Node và Edge để thay thế 'any'
+interface Node {
+  id: number;
+  label: string;
+  group: string;
+  title: string;
+}
+
+interface Edge {
+  id: string;
+  from: number;
+  to: number | string; // 'to' có thể là một node ID (number) hoặc một edge ID (string)
+  arrows?: string;
+  color?: { color: string };
+  label?: string;
+  smooth?: { enabled: boolean; type: string };
+  dashes?: boolean | number[];
+  width?: number;
+}
+// -------------------------
+
 const ResearchNetworkGraph: React.FC<ResearchNetworkGraphProps> = ({
   researchModel,
 }) => {
@@ -30,15 +54,17 @@ const ResearchNetworkGraph: React.FC<ResearchNetworkGraphProps> = ({
   useEffect(() => {
     if (!networkRef.current) return;
 
-    // Tạo nodes
-    const nodes = new DataSet<any>();
-    const edges = new DataSet<any>();
+    // ---- [THAY ĐỔI CHÍNH] ----
+    // Sử dụng kiểu dữ liệu đã định nghĩa thay vì 'any'
+    const nodes = new DataSet<Node>();
+    const edges = new DataSet<Edge>();
+    // -------------------------
 
     let nodeId = 1;
     const nodeMap = new Map<string, number>();
 
     // Helper function để thêm node
-    const addNode = (label: string, group: string) => {
+    const addNode = (label: string, group: string): number => {
       if (!nodeMap.has(label)) {
         nodeMap.set(label, nodeId);
         nodes.add({
@@ -49,7 +75,7 @@ const ResearchNetworkGraph: React.FC<ResearchNetworkGraphProps> = ({
         });
         nodeId++;
       }
-      return nodeMap.get(label);
+      return nodeMap.get(label)!; // Dùng '!' vì chúng ta chắc chắn nó tồn tại
     };
 
     // Thêm Independent Variables (X)
@@ -90,7 +116,6 @@ const ResearchNetworkGraph: React.FC<ResearchNetworkGraphProps> = ({
             arrows: "to",
             color: { color: "#3b82f6" },
             label: "direct",
-            smooth: { enabled: true, type: "continuous" },
           });
         }
       });
@@ -110,8 +135,6 @@ const ResearchNetworkGraph: React.FC<ResearchNetworkGraphProps> = ({
             to: mediatorId,
             arrows: "to",
             color: { color: "#10b981" },
-            label: "to mediator",
-            smooth: { enabled: true, type: "continuous" },
             dashes: true,
           });
         }
@@ -127,8 +150,6 @@ const ResearchNetworkGraph: React.FC<ResearchNetworkGraphProps> = ({
             to: toId,
             arrows: "to",
             color: { color: "#10b981" },
-            label: "to outcome",
-            smooth: { enabled: true, type: "continuous" },
             dashes: true,
           });
         }
@@ -139,51 +160,24 @@ const ResearchNetworkGraph: React.FC<ResearchNetworkGraphProps> = ({
     researchModel.moderatorVars.forEach((wVar) => {
       const moderatorId = nodeMap.get(wVar.construct);
 
-      // Moderator tác động lên direct effects
+      // Moderator tác động lên direct effects (X -> Y)
       researchModel.independentVars.forEach((xVar) => {
         researchModel.dependentVars.forEach((yVar) => {
           const xId = nodeMap.get(xVar.construct);
           const yId = nodeMap.get(yVar.construct);
+          const directEdgeId = `direct-${xId}-${yId}`;
+          const directEdge = edges.get(directEdgeId);
 
-          if (moderatorId && xId && yId) {
-            // Tìm edge direct effect tương ứng
-            const directEdge = edges.get(`direct-${xId}-${yId}`);
-            if (directEdge) {
-              edges.add({
-                id: `mod-${moderatorId}-${xId}-${yId}`,
-                from: moderatorId,
-                to: directEdge.id, // Liên kết đến edge chứ không phải node
-                arrows: "to",
-                color: { color: "#f59e0b" },
-                label: "moderates",
-                width: 2,
-                dashes: [5, 5],
-              });
-            }
-          }
-        });
-      });
-
-      // Moderator tác động lên mediation paths
-      researchModel.mediatorVars.forEach((mVar) => {
-        const mediatorId = nodeMap.get(mVar.construct);
-
-        researchModel.independentVars.forEach((xVar) => {
-          const xId = nodeMap.get(xVar.construct);
-          if (moderatorId && xId && mediatorId) {
-            const medEdge = edges.get(`med-x-${xId}-${mediatorId}`);
-            if (medEdge) {
-              edges.add({
-                id: `mod-med-${moderatorId}-${xId}-${mediatorId}`,
-                from: moderatorId,
-                to: medEdge.id,
-                arrows: "to",
-                color: { color: "#f59e0b" },
-                label: "moderates",
-                width: 2,
-                dashes: [5, 5],
-              });
-            }
+          if (moderatorId && xId && yId && directEdge) {
+            edges.add({
+              id: `mod-${moderatorId}-${xId}-${yId}`,
+              from: moderatorId,
+              to: directEdge.id, // Liên kết đến edge chứ không phải node
+              arrows: "to",
+              color: { color: "#f59e0b" },
+              width: 2,
+              dashes: [5, 5],
+            });
           }
         });
       });
@@ -201,8 +195,6 @@ const ResearchNetworkGraph: React.FC<ResearchNetworkGraphProps> = ({
             to: yId,
             arrows: "to",
             color: { color: "#6b7280" },
-            label: "controls",
-            smooth: { enabled: true, type: "continuous" },
             dashes: [10, 5],
           });
         }
@@ -210,107 +202,57 @@ const ResearchNetworkGraph: React.FC<ResearchNetworkGraphProps> = ({
     });
 
     // Cấu hình network
-    const options = {
+    const options: Options = {
       nodes: {
         shape: "box",
         margin: 10,
-        widthConstraint: {
-          minimum: 100,
-          maximum: 150,
-        },
-        font: {
-          size: 14,
-          face: "Arial",
-        },
+        widthConstraint: { minimum: 100, maximum: 150 },
+        font: { size: 14, face: "Arial" },
         borderWidth: 2,
         shadow: true,
       },
       edges: {
         width: 2,
         shadow: true,
-        font: {
-          size: 12,
-          face: "Arial",
-        },
-        smooth: {
-          enabled: true,
-          type: "continuous",
-        },
+        font: { size: 12, face: "Arial", align: "middle" },
+        smooth: { enabled: true, type: "dynamic" },
       },
       groups: {
         independent: {
-          color: {
-            background: "#dbeafe",
-            border: "#3b82f6",
-            highlight: {
-              background: "#bfdbfe",
-              border: "#1d4ed8",
-            },
-          },
+          color: { background: "#dbeafe", border: "#3b82f6" },
         },
         dependent: {
-          color: {
-            background: "#fce7f3",
-            border: "#ec4899",
-            highlight: {
-              background: "#fbcfe8",
-              border: "#be185d",
-            },
-          },
+          color: { background: "#fce7f3", border: "#ec4899" },
         },
         mediator: {
-          color: {
-            background: "#f0fdf4",
-            border: "#10b981",
-            highlight: {
-              background: "#dcfce7",
-              border: "#047857",
-            },
-          },
+          color: { background: "#f0fdf4", border: "#10b981" },
         },
         moderator: {
-          color: {
-            background: "#fef3c7",
-            border: "#f59e0b",
-            highlight: {
-              background: "#fef08a",
-              border: "#b45309",
-            },
-          },
+          color: { background: "#fef3c7", border: "#f59e0b" },
         },
         control: {
-          color: {
-            background: "#f3f4f6",
-            border: "#6b7280",
-            highlight: {
-              background: "#e5e7eb",
-              border: "#374151",
-            },
-          },
+          color: { background: "#f3f4f6", border: "#6b7280" },
         },
       },
       physics: {
         enabled: true,
-        stabilization: {
-          enabled: true,
-          iterations: 1000,
-        },
         barnesHut: {
-          gravitationalConstant: -8000,
-          springConstant: 0.04,
-          springLength: 95,
+          gravitationalConstant: -20000,
+          centralGravity: 0.3,
+          springLength: 150,
+          springConstant: 0.05,
+          damping: 0.09,
         },
+        solver: "barnesHut",
+        stabilization: { iterations: 200 },
       },
       interaction: {
         hover: true,
         tooltipDelay: 200,
-        zoomView: true,
-        dragView: true,
       },
       layout: {
-        improvedLayout: true,
+        hierarchical: false,
       },
-      height: "500px",
     };
 
     // Tạo network instance
@@ -324,6 +266,7 @@ const ResearchNetworkGraph: React.FC<ResearchNetworkGraphProps> = ({
     return () => {
       if (networkInstance.current) {
         networkInstance.current.destroy();
+        networkInstance.current = null;
       }
     };
   }, [researchModel]);
@@ -345,24 +288,10 @@ const ResearchNetworkGraph: React.FC<ResearchNetworkGraphProps> = ({
         }}
       >
         <div style={{ fontSize: "48px", marginBottom: "16px" }}>📊</div>
-        <h3
-          style={{
-            fontSize: "18px",
-            fontWeight: "600",
-            marginBottom: "8px",
-            color: "#374151",
-          }}
-        >
+        <h3 style={{ fontSize: "18px", fontWeight: "600", color: "#374151" }}>
           Research Model Network
         </h3>
-        <p
-          style={{
-            fontSize: "14px",
-            color: "#6b7280",
-            maxWidth: "400px",
-            margin: "0 auto",
-          }}
-        >
+        <p style={{ fontSize: "14px", color: "#6b7280" }}>
           Select constructs to visualize your research model relationships
         </p>
       </div>
@@ -377,21 +306,10 @@ const ResearchNetworkGraph: React.FC<ResearchNetworkGraphProps> = ({
         padding: "20px",
         border: "1px solid #e1e5e9",
         margin: "20px 0",
+        boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
       }}
     >
-      <h4 style={{ marginBottom: "15px", color: "#374151" }}>
-        Research Model Network
-      </h4>
-
-      <div
-        ref={networkRef}
-        style={{
-          height: "500px",
-          border: "1px solid #e5e7eb",
-          borderRadius: "8px",
-        }}
-      />
-
+      <div ref={networkRef} style={{ height: "500px" }} />
       {/* Legend */}
       <div
         style={{
@@ -409,41 +327,21 @@ const ResearchNetworkGraph: React.FC<ResearchNetworkGraphProps> = ({
           { type: "moderator", label: "Moderator (W)" },
           { type: "control", label: "Control" },
         ].map((item) => (
-          <div
-            key={item.type}
-            style={{ display: "flex", alignItems: "center", gap: "6px" }}
-          >
+          <div key={item.type} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <div
               style={{
                 width: "12px",
                 height: "12px",
                 borderRadius: "2px",
                 border: "2px solid",
-                ...(item.type === "independent" && {
-                  background: "#dbeafe",
-                  borderColor: "#3b82f6",
-                }),
-                ...(item.type === "dependent" && {
-                  background: "#fce7f3",
-                  borderColor: "#ec4899",
-                }),
-                ...(item.type === "mediator" && {
-                  background: "#f0fdf4",
-                  borderColor: "#10b981",
-                }),
-                ...(item.type === "moderator" && {
-                  background: "#fef3c7",
-                  borderColor: "#f59e0b",
-                }),
-                ...(item.type === "control" && {
-                  background: "#f3f4f6",
-                  borderColor: "#6b7280",
-                }),
+                ...(item.type === "independent" && { background: "#dbeafe", borderColor: "#3b82f6" }),
+                ...(item.type === "dependent" && { background: "#fce7f3", borderColor: "#ec4899" }),
+                ...(item.type === "mediator" && { background: "#f0fdf4", borderColor: "#10b981" }),
+                ...(item.type === "moderator" && { background: "#fef3c7", borderColor: "#f59e0b" }),
+                ...(item.type === "control" && { background: "#f3f4f6", borderColor: "#6b7280" }),
               }}
             />
-            <span style={{ fontSize: "12px", color: "#6b7280" }}>
-              {item.label}
-            </span>
+            <span style={{ fontSize: "12px", color: "#6b7280" }}>{item.label}</span>
           </div>
         ))}
       </div>
