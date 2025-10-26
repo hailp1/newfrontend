@@ -1,5 +1,5 @@
 // UPDATE pages/api/analysis.ts
-async function simulateAnalysis(analysisType: string, data: any) {
+async function simulateAnalysis(analysisType: string, data: Record<string, unknown>) {
   // Simulate processing time
   await new Promise((resolve) => setTimeout(resolve, 1500));
 
@@ -7,7 +7,7 @@ async function simulateAnalysis(analysisType: string, data: any) {
   switch (analysisType) {
     case "descriptive-stats":
       const variables = Object.keys(data.data[0] || {}).slice(0, 5);
-      const stats = variables.map((variable, index) => ({
+      const stats = variables.map((variable) => ({
         variable,
         mean: (Math.random() * 10 + 1).toFixed(3),
         median: (Math.random() * 10 + 1).toFixed(3),
@@ -46,7 +46,7 @@ async function simulateAnalysis(analysisType: string, data: any) {
         coefficients: {
           intercept: (Math.random() * 2 - 1).toFixed(3),
           ...data.independent_vars.reduce(
-            (acc: any, varName: string, index: number) => {
+            (acc: Record<string, string>, varName: string) => {
               acc[varName] = (Math.random() * 0.5 + 0.1).toFixed(3);
               return acc;
             },

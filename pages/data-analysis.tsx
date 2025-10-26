@@ -71,7 +71,7 @@ interface ResearchModel {
 // UTILITY FUNCTIONS - REAL CALCULATIONS
 // ============================================================================
 
-const parseCSV = (text: string): any[] => {
+const parseCSV = (text: string): Record<string, unknown>[] => {
   const lines = text.split("\n").filter((line) => line.trim() !== "");
   if (lines.length === 0) return [];
 
@@ -326,7 +326,7 @@ const performHealthCheck = (data: any[]): HealthCheckResult | null => {
 };
 
 // REAL STATISTICAL CALCULATIONS
-const calculateDescriptiveStats = (data: any[]) => {
+const calculateDescriptiveStats = (data: Record<string, unknown>[]) => {
   if (!data.length) return [];
   const numericColumns = Object.keys(data[0]).filter((key) => {
     const values = data
@@ -2349,7 +2349,7 @@ export default function DataAnalysis() {
               <div style={{ fontSize: "32px", marginBottom: "10px" }}>📊</div>
               <div>No variable groups created yet</div>
               <div style={{ fontSize: "14px", marginTop: "5px" }}>
-                Click "Add New Group" to start organizing your variables
+                Click &quot;Add New Group&quot; to start organizing your variables
               </div>
             </div>
           )}

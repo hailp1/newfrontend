@@ -205,7 +205,7 @@ const ResearchNetworkGraph: React.FC<ResearchNetworkGraphProps> = ({
     const options: Options = {
       nodes: {
         shape: "box",
-        margin: 10,
+        margin: { top: 10, right: 10, bottom: 10, left: 10 },
         widthConstraint: { minimum: 100, maximum: 150 },
         font: { size: 14, face: "Arial" },
         borderWidth: 2,

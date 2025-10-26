@@ -607,15 +607,15 @@ export default function ThesisDashboard() {
                 <div style={styles.insightCard}>
                   <div style={styles.insightTitle}>Insight:</div>
                   <p style={styles.insightText}>
-                    "Economic modeling is taking longer to execute. Consider
-                    breaking down to smaller sub-tasks?"
+                    &quot;Economic modeling is taking longer to execute. Consider
+                    breaking down to smaller sub-tasks?&quot;
                   </p>
                 </div>
 
                 <div style={styles.nextStepCard}>
                   <div style={styles.nextStepTitle}>Next Step:</div>
                   <p style={styles.nextStepText}>
-                    Start drafting "Methodology" section based on compiled
+                    Start drafting &quot;Methodology&quot; section based on compiled
                     analysis
                   </p>
                 </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Head from "next/head";
 
 // Custom hook để quản lý theme
 function useTheme() {
@@ -35,7 +36,7 @@ function useTheme() {
     }
   };
 
-  const updateSiteSettings = (newSettings: any) => {
+  const updateSiteSettings = (newSettings: Record<string, unknown>) => {
     const updatedSettings = { ...siteSettings, ...newSettings };
     setSiteSettings(updatedSettings);
     if (typeof window !== "undefined") {
@@ -56,7 +57,7 @@ export default function MyApp({ Component, pageProps }) {
 
   return (
     <>
-      <head>
+      <Head>
         <title>{theme.siteSettings.siteTitle}</title>
         <meta
           name="description"
@@ -67,7 +68,7 @@ export default function MyApp({ Component, pageProps }) {
           rel="icon"
           href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${theme.siteSettings.favicon}</text></svg>"
         />
-      </head>
+      </Head>
       <Component {...pageProps} themeContext={theme} />
     </>
   );

@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://your-backend-tunnel-url.trycloudflare.com";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://your-tunnel-url.trycloudflare.com";
 
 // Generic API call function với timeout và error handling tốt hơn
 async function apiCall<T>(
